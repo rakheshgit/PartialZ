@@ -1,11 +1,12 @@
-import { Component } from '@angular/core';
-import { FormBuilder, Validators, ValidatorFn, AbstractControl, ValidationErrors } from '@angular/forms';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { Component, ViewChild } from '@angular/core';
+import { FormBuilder, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
+import { MatDialog, } from '@angular/material/dialog';
 import { TermsandtonditionsComponent } from '../termsandtonditions/termsandtonditions.component';
 import { PartialzService } from '../Service/partialz.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDatepickerInputEvent } from '@angular/material/datepicker';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { MatStepper } from '@angular/material/stepper';
 @Component({
   selector: 'app-registration',
   templateUrl: './registration.component.html',
@@ -14,16 +15,20 @@ import { Router } from '@angular/router';
 export class RegistrationComponent {
   constructor(private _formBuilder: FormBuilder,
     private readonly _partialzService: PartialzService,
+    private readonly _activateRoute: ActivatedRoute,
     private router: Router,
     private _snackBar: MatSnackBar,
     public _dialog: MatDialog) { }
+  @ViewChild('stepper') stepper!: MatStepper;
   // local variable 
   isButtonDisabled = true;
   isButtonHidden = true;
   isLinear = true;
   hide = true;
   cHide = true;
-  employeEmailID="";
+  selectedStepIndex: number = 0;
+  employeEmailID = "";
+  token: string = "";
   //Form variable  
   firstFormGroup = this._formBuilder.group({
     UserName: ['', [Validators.required, Validators.email]],
@@ -35,7 +40,7 @@ export class RegistrationComponent {
     FEINNumber: ['', [Validators.required, this.lengthValidator]],
   });
   thirdFormGroup = this._formBuilder.group({
-    aEANNumber: ['', [Validators.required,this.lengthValidator]],
+    aEANNumber: ['', [Validators.required, this.lengthValidator]],
     aFEINNumber: ['', [Validators.required, this.lengthValidator]],
     Email: ['', [Validators.required, Validators.email]],
     employerName: ['', Validators.required],
@@ -52,9 +57,18 @@ export class RegistrationComponent {
   });
 
   ngOnInit() {
-     
   }
-
+  ngAfterViewInit(): void {
+    console.log(this.stepper);
+    this._activateRoute.queryParams.subscribe(
+      (queryParams) => {
+        this.token = queryParams['token'];
+        if (this.token != null) {
+          this.Veifyemail(this.token);
+        }
+      }
+    );
+  }
   //terms and condition
   setAll(completed: boolean) {
     console.log(completed);
@@ -92,21 +106,21 @@ export class RegistrationComponent {
     return null;
   }
   // Custom validator function to validate US phone numbers
- usPhoneNumberValidator(control: AbstractControl): { [key: string]: any } | null {
-  const phoneNumber = control.value;
-  const phoneNumberPattern = /^\(\d{3}\) \d{3}-\d{4}$/; // Format: (123) 456-7890
+  usPhoneNumberValidator(control: AbstractControl): { [key: string]: any } | null {
+    const phoneNumber = control.value;
+    const phoneNumberPattern = /^\(\d{3}\) \d{3}-\d{4}$/; // Format: (123) 456-7890
 
-  if (phoneNumber && !phoneNumberPattern.test(phoneNumber)) {
-    return { 'invalidPhoneNumber': true };
+    if (phoneNumber && !phoneNumberPattern.test(phoneNumber)) {
+      return { 'invalidPhoneNumber': true };
+    }
+
+    return null;
   }
-
-  return null;
-}
-onPayrollEndDaySelected(event: MatDatepickerInputEvent<Date>) {
-  // Update the value of the payrollEndDay FormControl
-  if(event.value!=null)
-  this.thirdFormGroup.get('payrollEndDay')?.setValue(event.value.toDateString());
-}
+  onPayrollEndDaySelected(event: MatDatepickerInputEvent<Date>) {
+    // Update the value of the payrollEndDay FormControl
+    if (event.value != null)
+      this.thirdFormGroup.get('payrollEndDay')?.setValue(event.value.toDateString());
+  }
   //Step 1
   SaveandsendVeifyemail() {
     this.isButtonDisabled = true;
@@ -158,31 +172,31 @@ onPayrollEndDaySelected(event: MatDatepickerInputEvent<Date>) {
       phoneNUmber = this.thirdFormGroup.get('Phone'),
       payrollEndDay = this.thirdFormGroup.get('payrollEndDay');;
     if (this.thirdFormGroup.valid) {
-      if(eanNumber!==null && feinNumber!==null && email!==null &&
-        employerName!==null && employerAddress!==null && city!==null&&
-        state!==null && zipcode!==null && firstName!==null &&
-        lastName!==null && businessTitle!==null && phoneNUmber!==null && payrollEndDay!==null
-        ){
-          
+      if (eanNumber !== null && feinNumber !== null && email !== null &&
+        employerName !== null && employerAddress !== null && city !== null &&
+        state !== null && zipcode !== null && firstName !== null &&
+        lastName !== null && businessTitle !== null && phoneNUmber !== null && payrollEndDay !== null
+      ) {
 
-          const body = {
-            Eannumber: eanNumber.value,
-            Feinnumber: feinNumber.value,
-            EmployerEmail:email.value,
-            Name:employerName.value,
-            Address:employerAddress.value,
-            City:city.value,
-            State:state.value,
-            ZipCode:zipcode.value,
-            FirstName:firstName.value,
-            LastName:lastName.value,
-            Email:this.employeEmailID,
-            BusinessTitle:businessTitle.value,
-            PhoneNumber:phoneNUmber.value,
-            PayrollEndDay:payrollEndDay.value
-          };
-         this.AffidavitRegistration(body);
-        }
+
+        const body = {
+          Eannumber: eanNumber.value,
+          Feinnumber: feinNumber.value,
+          EmployerEmail: email.value,
+          Name: employerName.value,
+          Address: employerAddress.value,
+          City: city.value,
+          State: state.value,
+          ZipCode: zipcode.value,
+          FirstName: firstName.value,
+          LastName: lastName.value,
+          Email: this.employeEmailID,
+          BusinessTitle: businessTitle.value,
+          PhoneNumber: phoneNUmber.value,
+          PayrollEndDay: payrollEndDay.value
+        };
+        this.AffidavitRegistration(body);
+      }
     } else {
       this.showSnackbar("Invalid data", "Close");
     }
@@ -211,9 +225,9 @@ onPayrollEndDaySelected(event: MatDatepickerInputEvent<Date>) {
     this._partialzService.post<any>('https://localhost:7178/api/Employee', body).subscribe(
       (response) => {
         if (response == 1) {
-          this.isButtonDisabled = false;
+          this.isButtonDisabled = true;
           this.showSnackbar("We have sent you the verification mail please confirm", "OK");
-          this.employeEmailID=emailID;
+          this.employeEmailID = emailID;
         } else {
           this.showSnackbar("Something went wrong please try again", "Close");
         }
@@ -244,12 +258,32 @@ onPayrollEndDaySelected(event: MatDatepickerInputEvent<Date>) {
       }
     );
   }
-  AffidavitRegistration(body : any): void {
+  AffidavitRegistration(body: any): void {
     this._partialzService.post<any>('https://localhost:7178/api/Employer/AffidavitRegistration', body).subscribe(
       (response) => {
-        if (response == 1) {         
+        if (response == 1) {
           this.showSnackbar("Application successfully submitted", "OK");
           this.router.navigate(['/profile'], { queryParams: { type: '2' } });
+        } else {
+          this.showSnackbar("Something went wrong please try again", "Close");
+        }
+      },
+      (error) => {
+        this.showSnackbar('Error occurred while while processing your request.', "Close");
+      }
+    );
+  }
+  Veifyemail(token: string): void {
+    this._partialzService.get<any>('https://localhost:7178/api/Employee/VerifyEmployee?token=' + token).subscribe(
+      (response) => {
+        if (response == 1) {
+          console.log(this.stepper);
+          this.firstFormGroup.get('UserName')?.setValue("yourmail@gmail.com");
+          this.firstFormGroup.get('Password')?.setValue("yourpwd");
+          this.firstFormGroup.get('Confirmpassword')?.setValue("yourpwd");
+          this.stepper.selectedIndex =1;
+          this.showSnackbar("Email verified successfully", "Close");
+          this.employeEmailID=token;
         } else {
           this.showSnackbar("Something went wrong please try again", "Close");
         }

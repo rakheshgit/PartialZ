@@ -1,4 +1,4 @@
-<mat-stepper [linear]="isLinear" #stepper>
+<mat-stepper [linear]="isLinear" #stepper [selectedIndex]="selectedStepIndex">
     <mat-step [stepControl]="firstFormGroup" label="Registration">
         <mat-card>
             <mat-card-content>
@@ -44,7 +44,7 @@
                         <input matInput placeholder="FEIN Number" formControlName="FEINNumber" maxlength="16" required>
                       </mat-form-field>
                     <div>
-                      <button mat-button matStepperPrevious mat-raised-button color="primary"  style="float: left;">Back</button>
+                      <button mat-button matStepperPrevious mat-raised-button color="primary"  style="float: left;" [disabled]="isButtonDisabled">Back</button>
                       <button mat-button mat-raised-button color="primary" style="float: right;" [hidden]="!isButtonHidden" (click)="SaveEANandFEIN()">Authoriz</button>
                       <button mat-button matStepperNext mat-raised-button color="primary" style="float: right;" [hidden]="isButtonHidden">Next</button>
                     </div>
@@ -149,7 +149,7 @@
           </mat-grid-list> 
           <mat-grid-list cols="2" rowHeight="100px">
             <mat-grid-tile  [colspan]="2" [rowspan]="1">
-                <mat-checkbox class="example-margin" formControlName="terms" style="float: left;" color="primary" (change)="setAll($event.checked)">I Certify to the <a (click)="openDialog()" style="color: blue;">terms and conditions</a></mat-checkbox>                                     
+                <mat-checkbox class="example-margin" formControlName="terms" style="float: left;" color="primary" (change)="setAll($event.checked)"><a (click)="openDialog()" style="color: blue;">I Certify to the terms and conditions</a></mat-checkbox>                                     
             </mat-grid-tile>
           </mat-grid-list> 
           <mat-grid-list cols="5" rowHeight="100px">
