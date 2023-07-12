@@ -73,6 +73,9 @@ export class RegistrationComponent {
   setAll(completed: boolean) {
     console.log(completed);
   }
+  haserror = (iteam: string, errorName: string) => {
+    return this.firstFormGroup.controls[iteam].hasError(errorName);
+  }
   openDialog() {
     const dialogRef = this._dialog.open(TermsandtonditionsComponent);
     dialogRef.afterClosed().subscribe(result => {
@@ -281,9 +284,9 @@ export class RegistrationComponent {
           this.firstFormGroup.get('UserName')?.setValue("yourmail@gmail.com");
           this.firstFormGroup.get('Password')?.setValue("yourpwd");
           this.firstFormGroup.get('Confirmpassword')?.setValue("yourpwd");
-          this.stepper.selectedIndex =1;
+          this.stepper.selectedIndex = 1;
           this.showSnackbar("Email verified successfully", "Close");
-          this.employeEmailID=token;
+          this.employeEmailID = token;
         } else {
           this.showSnackbar("Something went wrong please try again", "Close");
         }

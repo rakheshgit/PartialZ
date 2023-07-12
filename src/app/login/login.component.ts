@@ -3,6 +3,10 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { PartialzService } from '../Service/partialz.service';
 import { Router } from '@angular/router';
+import html2pdf from 'html2pdf.js';
+
+// Your code here
+
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
@@ -21,11 +25,29 @@ export class LoginComponent implements OnInit, OnDestroy {
 
 
   public ngOnInit(): void {
+   
   }
-
+  ngAfterViewInit(): void {
+    console.log(document.getElementById('content'));
+    this.generatePdf();
+  }
   public ngOnDestroy(): void {
 
   }
+  generatePdf() {
+    const element = document.getElementById('content');
+  
+    if (element) {
+      const options = {
+        filename: 'downloaded_pdf.pdf',
+        html2canvas: {},
+        jsPDF: { format: 'a4', orientation: 'portrait' },
+      };
+  
+      html2pdf().from(element).set(options).save();
+    }
+  } 
+  
   //message dispaly
   private showSnackbar(message: string, action: string): void {
     this._snackBar.open(message, action, {
